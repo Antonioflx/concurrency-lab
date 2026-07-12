@@ -171,7 +171,18 @@ curl -N -X POST "http://localhost:3000/api/simulate/compare/stream?count=20" \
 
 ## Ver e-mails enviados
 
-Acesse `http://localhost:8025` para visualizar os e-mails com o anexo Excel gerados pelo Mailpit.
+O projeto usa **Mailpit** como servidor SMTP local. Ele **intercepta** os e-mails e os exibe em uma caixa de entrada web — nenhum e-mail é entregue a destinatários reais.
+
+Acesse `http://localhost:8025` para visualizar os e-mails capturados com o anexo Excel.
+
+> **Quer receber e-mails de verdade?**  
+> Configure um SMTP real no `.env`:
+> ```env
+> SMTP_HOST=smtp.gmail.com
+> SMTP_PORT=587
+> SMTP_USER=seuemail@gmail.com
+> SMTP_PASS=sua-app-password
+> ```
 
 ---
 
