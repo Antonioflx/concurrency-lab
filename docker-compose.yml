@@ -1,0 +1,54 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: concurrency-lab-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: concurrency-lab-mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: concurrency-lab-backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/concurrency_lab
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+    volumes:
+      - backend-tmp:/app/tmp
+    depends_on:
+      mongo:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3000/openapi.json"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mongo-data:
+  backend-tmp:
